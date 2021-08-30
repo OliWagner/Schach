@@ -1,0 +1,81 @@
+﻿@using Schach.Models
+@model Schach.Models.SpielenWerteModel
+<link href="~/CSS/spiel.css" rel="stylesheet" />
+
+
+
+<script>
+    var SpielerAmZug = "@Model.SpielerAmZug";
+    var EigeneFarbeDesSpielers = "@Model.EigeneFarbeDesSpielers";
+    var IdDesLaufendenSpiels = @Model.SpielId;
+
+</script>
+<script src="~/Scripts/Schach/Spiel.js"></script>
+@Model.NameSpielerSchwarz - @Model.NameSpielerWeiss
+<br />
+Sie spielen mit @(Model.EigeneFarbeDesSpielers.Equals("W") ? "Weiss" : "Schwarz")
+<br />
+<label id="lblAnzeigeSpielerAmZug">
+    @(Model.SpielerAmZug.Equals("W") ? "Weiss" : "Schwarz") ist am Zug
+</label>
+<div id="divAnzeigeZuege">
+
+</div>
+
+<div id="divChat">
+    <table border="0"width="100%">
+        <tr>
+            <td id="tdChatOben">
+                <div id="divChatNachrichten"></div>
+            </td>
+        </tr>
+        <tr>
+            <td id="tdChatUnten">
+                <div id="divChatEingabe">
+                    <input type="text" maxlength="99" id="txtChatNachricht" />
+                    <button id="btnChatNachrichtSenden">Senden</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<script>
+    $("#btnChatNachrichtSenden").click(function () {
+        let values = JSON.stringify({
+            spielId: IdDesLaufendenSpiels,
+            nachrichtVon: '@Session["Spieler"].ToString()',
+            nachricht: $("#txtChatNachricht").val()
+        });
+
+        var http_ = new XMLHttpRequest();
+        http_.open('POST', '/Chat/NachrichtEintragen', true);
+        http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http_.onreadystatechange = function () {
+            if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
+                $("#txtChatNachricht").val("");
+            }
+        }
+        http_.send(values); 
+    });
+
+    var myIntervalChats = setInterval(function () {
+        let value = JSON.stringify({
+            spielId: IdDesLaufendenSpiels
+        });
+
+        var http = new XMLHttpRequest();
+        http.open('POST', '/Chat/NachrichtenAbrufen', true);
+        http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200 && http.responseText != "") {
+                //Nachrichten verarbeiten
+                $("#divChatNachrichten").empty();
+                var arr = JSON.parse(http.responseText);
+                arr.forEach(function (item) {
+                    $("#divChatNachrichten").append("<p class='chatxxx'><u>" + item.NachrichtVon + ":</u> " + item.Nachricht + "</p>");
+                });
+            }
+        }
+        http.send(value);
+    }, 3000);
+</script>

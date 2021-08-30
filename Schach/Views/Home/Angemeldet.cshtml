@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schach - Onlinekram</title>
+</head>
+<body>
+    <div id="divAnzeige" class="divAnzeige" style="float:left;">
+        @Html.Partial("_Spielerwahl")
+    </div>
+    <div id="divChatAllgemein" style="float:left; width:300px;">
+        <div id="divChatAllgemeinBox">
+
+        </div>
+        <div id="divChatAllgemeinBedienBox">
+            <table border="0">
+                <tr>
+                    <td><input type="text" id="txtNachrichtChatAllgemein" maxlength="99" /></td>
+                    <td>&nbsp;</td>
+                    <td><button id="btnChatAllgemeinNachrichtSenden" class="btnAngemeldet">Senden</button></td>
+                </tr>
+            </table>
+            
+            
+        </div>
+        <div id="divAngemeldetBedienBox">
+            <button id="btnAbmelden" class="btnAngemeldet">Abmelden</button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        $("#divSchachbrett").hide();
+
+        //ich will die Spieler abrufen und in der Tabelle darstellen
+        let guid = "@Session["SpielerGuid"].ToString()";
+        var value = JSON.stringify({
+            guid: guid
+        });
+
+        var http = new XMLHttpRequest();
+        http.open('POST', '/Home/SpielerAbrufen', true);
+        http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http.onreadystatechange = function () {
+            if (http.readyState == 4 && http.status == 200) {
+                var arr = JSON.parse(http.responseText);
+                arr.forEach(function (item) {
+                    $("#tabSpieler").append("<tr><td onclick=tdClick('" + item.Guid +  "')>" + item.Mailadresse + "</td></tr>");
+                });
+            }
+        }
+        http.send(value);
+    });
+
+    var myInterval = setInterval(function () {
+    var value = JSON.stringify({
+        spielerschwarz: '@Session["SpielerGuid"].ToString()'
+    });
+
+    var http = new XMLHttpRequest();
+    http.open('POST', '/Home/PartieNachschauen', true);
+    http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    http.onreadystatechange = function () {
+        if (http.readyState == 4 && http.status == 200) {
+            if (http.responseText != "Nix") {
+                clearInterval(myInterval);
+                var values = JSON.parse(http.responseText);
+                $("#lblAnfrage").text(values.Prosatext);
+                $("#lblAnfrage").append("<br/><a href='/Home/Spielen?id=" + values.PartieId + "'>Zum Spiel</a>");
+            }
+        }
+    }
+    http.send(value);
+    }, 3000);
+
+    function tdClick(guid) {
+
+    var value = JSON.stringify({
+        spielerweiss: '@Session["SpielerGuid"].ToString()',
+        spielerschwarz: guid
+    });
+
+    var http = new XMLHttpRequest();
+    http.open('POST', '/Home/PartieAnlegen', true);
+    http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    http.onreadystatechange = function () {
+        if (http.readyState == 4 && http.status == 200) {
+            $("#lblAnfrage").text("Die Anfrage wurde an den Spieler versendet");
+
+            //Hier ein neues Interval was schaut, ob die Partie vom anderen bestätigt wurde
+            //Wenn ja auf Spielen umleiten
+            var myInterval2 = setInterval(function () {
+                var value2 = JSON.stringify({
+                    id: http.responseText
+                });
+
+                var http2 = new XMLHttpRequest();
+                http2.open('POST', '/Home/CheckAnnahmePartie', true);
+                http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+                http2.onreadystatechange = function () {
+                    if (http2.readyState == 4 && http2.status == 200) {
+                        if (http2.responseText != "false") {
+                            clearInterval(myInterval2);
+                            window.location.href = "/Home/Spielen?id=" + http.responseText;
+                        }
+                    }
+                }
+                http2.send(value2);
+                }, 3000);
+
+
+        }
+    }
+    http.send(value);
+    }
+
+    $("#btnChatAllgemeinNachrichtSenden").click(function () {
+        if ($("#txtNachrichtChatAllgemein").val() != "") {
+            var value2 = JSON.stringify({
+                nachricht: $("#txtNachrichtChatAllgemein").val(),
+                nachrichtVon: '@Session["Spieler"].ToString()'
+            });
+
+            var http2 = new XMLHttpRequest();
+            http2.open('POST', '/Chat/NachrichtAllgEintragen', true);
+            http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            http2.send(value2);
+            $("#txtNachrichtChatAllgemein").val("");
+        }
+    });
+
+    setInterval(function () {
+        
+        var http2 = new XMLHttpRequest();
+        http2.open('POST', '/Chat/NachrichtenAllgAbrufen', true);
+        http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http2.onreadystatechange = function () {
+            if (http2.readyState == 4 && http2.status == 200) {
+                if (http2.responseText != "") {
+                    var arr = JSON.parse(http2.responseText);
+                    $("#divChatAllgemeinBox").empty();
+                    arr.forEach(function (item) {
+                        $("#divChatAllgemeinBox").append("<p class='ChatNachrichtAllgemein'>" + item.NachrichtVon + ": " + item.Nachricht + "</p>");
+                    });
+                }
+            }
+        }
+        http2.send();
+    }, 3000);
+
+</script>

@@ -1,0 +1,81 @@
+﻿.zugWeiss {
+    color: #fff !important;
+    margin-left:5px;
+}
+
+.zugSchwarz {
+    color: #000 !important;
+    margin-left: 5px;
+}
+
+#divAnzeigeZuege {
+    border: solid 1px #ffd800;
+    background-color: gray;
+    border-radius: 5px;
+    padding: 5px;
+    min-width: 100px;
+    min-height: 120px;
+    font-size: 8px;
+    font-style: oblique;
+    overflow: auto;
+}
+
+#divChat {
+    margin-top: 5px;
+    border: solid 1px #ffd800;
+    background-color: gray;
+    border-radius: 5px;
+    padding: 2px;
+    min-width: 100px;
+    min-height: 40px;
+    font-size: 8px;
+    font-style: normal;
+    overflow: auto;
+}
+
+#tdChatOben {
+    margin-top: 5px;
+    padding: 2px;
+    min-width: 100px;
+    font-size: 8px;
+    font-style: normal;
+    overflow: auto;
+}
+
+#tdChatUnten {
+    margin-top: 5px;
+    padding: 2px;
+    min-width: 100px;
+    font-size: 8px;
+    font-style: normal;
+    overflow: auto;
+}
+
+#divChatNachrichten {
+    overflow-y: auto;
+    min-height: 35px;
+    max-height: 35px;
+    min-width: 100px;
+}
+
+#divChatEingabe {
+    min-height: 10px;
+    min-width: 100px;
+}
+
+#txtChatNachricht {
+    width: 220px;
+    border: solid 1px #ffd800;
+    background-color: darkgray;
+    border-radius: 2px;
+    color: #ffd800;
+}
+
+#btnChatNachrichtSenden {
+    width: 60px;
+    border: solid 1px #ffd800;
+    background-color: darkgray;
+    border-radius: 2px;
+    color: #ffd800;
+}
+

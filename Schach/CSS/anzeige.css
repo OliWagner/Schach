@@ -1,0 +1,50 @@
+﻿.divAnzeigeLinks {
+    font-size: 15px;
+    border: solid 2px #ffffff;
+    border-radius: 5px;
+    min-width: 250px;
+    min-height: 110px;
+    padding: 10px;
+}
+
+.divAnzeigeRechts {
+    font-size: 15px;
+    margin-top: 20px;
+    border: solid 2px #ffffff;
+    border-radius: 5px;
+    min-width: 250px;
+    padding: 10px;
+    min-height: 110px;
+}
+
+.divAnzeigeSpielerauswahl {
+    font-size: 15px;
+    border: solid 2px #ffffff;
+    border-radius: 5px;
+    min-width: 250px;
+    padding: 10px;
+    min-height: 260px;
+}
+
+.btnAnzeige {
+    color: #444444;
+    height: 22px;
+    margin-top: 5px;
+    float: right;
+    font-size: 10px;
+    border: solid 1px #000;
+    border-radius: 3px;
+    background-color: lightgreen;
+}
+
+.txtInput {
+    padding: 2px;
+    height: 22px;
+    float: right;
+    border: solid 1px #000;
+    border-radius: 3px;
+}
+td {
+    height: 25px;
+
+}

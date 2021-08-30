@@ -1,0 +1,19 @@
+﻿@using Schach.Models
+@model Schach.Models.SpielenWerteModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schach - Onlinekram</title>
+</head>
+<body>
+    <div id="divSchachbrett" style="float:left; width:300px;">
+        @Html.Partial("_Schachbrett")
+    </div>
+
+    <div id="divAnzeige" class="divAnzeige" style="float:left;">
+           @Html.Partial("_Spiel")
+    </div>
+</body>
+</html>
