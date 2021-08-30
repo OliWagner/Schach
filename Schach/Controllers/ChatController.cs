@@ -25,14 +25,13 @@ namespace Schach.Controllers
 
         public ActionResult NachrichtAllgEintragen(string nachricht, string nachrichtVon)
         {
-            DbConnector.InsertAllgChatNachricht(nachricht, nachrichtVon);
-
-            return Content("ok", "text/plain");
+            int id = DbConnector.InsertAllgChatNachricht(nachricht, nachrichtVon);
+            return Content(id.ToString(), "text/plain");
         }
 
-        public ActionResult NachrichtenAllgAbrufen()
+        public ActionResult NachrichtenAllgAbrufen(string id)
         {
-            List<ChatAllgNachricht> liste = DbConnector.ReadAllgChatNachrichten();
+            List<ChatAllgNachricht> liste = DbConnector.ReadAllgChatNachrichten(Int32.Parse(id));
             return Content(JsonConvert.SerializeObject(liste), "text/json");
         }
     }

@@ -311,7 +311,7 @@ namespace Schach.Classes
             Close();
         }
 
-        public static void InsertAllgChatNachricht(string nachricht, string nachrichtVon)
+        public static int InsertAllgChatNachricht(string nachricht, string nachrichtVon)
         {
             Connect();
             SqlCommand command = _con.CreateCommand();
@@ -325,7 +325,7 @@ namespace Schach.Classes
 
             try
             {
-                command.CommandText = "Insert into AllgChat (DatumZeit, Von, Nachricht) VALUES ('" + DateTime.Now + "', '" + nachrichtVon + "', '" + nachricht + "')";
+                command.CommandText = "Insert into AllgChat (DatumZeit, Von, Nachricht) VALUES ('" + DateTime.Now + "', '" + nachrichtVon + "', '" + nachricht + "');";
                 command.ExecuteNonQuery();
                 transaction.Commit();
             }
@@ -333,8 +333,23 @@ namespace Schach.Classes
             {
                 int test = 0;
             }
+            using (SqlCommand cmd = new SqlCommand())
+            {
 
-            Close();
+                cmd.Connection = _con;
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = " Select @@IDENTITY;";
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                Close();
+
+                int objint = Int32.Parse(dt.Rows[0].ItemArray[0].ToString());
+
+                return objint;
+            }
+            
         }
 
         public static void InsertChatNachricht(string spielId, string nachricht, string nachrichtVon)
@@ -363,7 +378,7 @@ namespace Schach.Classes
             Close();
         }
 
-        public static List<ChatAllgNachricht> ReadAllgChatNachrichten()
+        public static List<ChatAllgNachricht> ReadAllgChatNachrichten(int id)
         {
             Connect();
             List<ChatAllgNachricht> liste = new List<ChatAllgNachricht>();
@@ -374,7 +389,7 @@ namespace Schach.Classes
 
                     cmd.Connection = _con;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM AllgChat order by id desc";
+                    cmd.CommandText = "SELECT * FROM AllgChat where id > '" + id + "'  order by id desc";
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -382,7 +397,7 @@ namespace Schach.Classes
 
                     foreach (DataRow row in dt.Rows)
                     {
-                        liste.Add(new ChatAllgNachricht(row.Field<DateTime>(1), row.Field<string>(2), row.Field<string>(3)));
+                        liste.Add(new ChatAllgNachricht(row.Field<DateTime>(1), row.Field<string>(2), row.Field<string>(3), row.Field<int>(0)));
                     }
                 }
             }

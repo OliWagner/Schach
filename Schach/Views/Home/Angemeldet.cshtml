@@ -116,6 +116,7 @@
     http.send(value);
     }
 
+    var idDesLetztenChatAllgemeinNachricht = 0;
     $("#btnChatAllgemeinNachrichtSenden").click(function () {
         if ($("#txtNachrichtChatAllgemein").val() != "") {
             var value2 = JSON.stringify({
@@ -126,6 +127,13 @@
             var http2 = new XMLHttpRequest();
             http2.open('POST', '/Chat/NachrichtAllgEintragen', true);
             http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            http2.onreadystatechange = function () {
+                if (http2.readyState == 4 && http2.status == 200) {
+                    if (http2.responseText != "" && http2.responseText != "[]") {
+                        idDesLetztenChatAllgemeinNachricht = http2.responseText - 1;
+                    }
+                }
+            }
             http2.send(value2);
             $("#txtNachrichtChatAllgemein").val("");
         }
@@ -134,20 +142,33 @@
     setInterval(function () {
         
         var http2 = new XMLHttpRequest();
+        //Die Id wegschreiben, um nur neue Nachrichten abzurufen
+        var value2 = JSON.stringify({
+                id: idDesLetztenChatAllgemeinNachricht 
+            });
+
         http2.open('POST', '/Chat/NachrichtenAllgAbrufen', true);
         http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
         http2.onreadystatechange = function () {
             if (http2.readyState == 4 && http2.status == 200) {
-                if (http2.responseText != "") {
+                if (http2.responseText != "[]" && http2.responseText != "") {
                     var arr = JSON.parse(http2.responseText);
-                    $("#divChatAllgemeinBox").empty();
+                    //$("#divChatAllgemeinBox").empty();
+                    
                     arr.forEach(function (item) {
-                        $("#divChatAllgemeinBox").append("<p class='ChatNachrichtAllgemein'>" + item.NachrichtVon + ": " + item.Nachricht + "</p>");
+                        var datum = new Date(item.Datum);
+                        if (idDesLetztenChatAllgemeinNachricht == 0) {
+                            $("#divChatAllgemeinBox").append("<p class='ChatNachrichtAllgemein'>" + item.NachrichtVon + " <small>" + (datum.getHours() < 10 ? '0' : '') + datum.getHours() + ":" + (datum.getMinutes() < 10 ? '0' : '') + datum.getMinutes() + "</small>: " + item.Nachricht + "</p>");
+                        } else {
+                            $("#divChatAllgemeinBox").prepend("<p class='ChatNachrichtAllgemein'>" + item.NachrichtVon + " <small>" + (datum.getHours() < 10 ? '0' : '') + datum.getHours() + ":" + (datum.getMinutes() < 10 ? '0' : '') + datum.getMinutes() + "</small>: " + item.Nachricht + "</p>");
+                        }
+                        
                     });
+                    idDesLetztenChatAllgemeinNachricht = arr[0].Id;
                 }
             }
         }
-        http2.send();
+        http2.send(value2);
     }, 3000);
 
 </script>
