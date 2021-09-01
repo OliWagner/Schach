@@ -199,6 +199,49 @@ namespace Schach.Classes
             return liste;
         }
 
+        public static void DeletePartie(int spielId) {
+            Connect();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = _con;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "Delete from Partien where id = '" + spielId + "'";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception)
+            {
+                int i = 0;
+            }
+            Close();
+        }
+
+        /// <summary>
+        /// Entfernen des Eintrags erfolgt nach 5 Minuten in der Funktion InsertChatNachricht
+        /// </summary>
+        /// <param name="spielId"></param>
+        public static void InsertChatToDelete(int spielId) {
+            Connect();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+
+                    cmd.Connection = _con;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "Insert Into ChatsToDelete (Zeitstempel, SpielId) Values (getdate(), '" + spielId + "')";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception)
+            {
+                int test = 0;
+            }
+            Close();
+        }
+
         public static void InsertPartie(string spielerweiss, string spielerschwarz)
         {
             Connect();
@@ -237,7 +280,7 @@ namespace Schach.Classes
             Close();
         }
 
-        public static void InsertSpielstandStart(int spielId)
+        public static string InsertSpielstand(int spielId, string istDran, string werte)
         {
             Connect();
             SqlCommand command = _con.CreateCommand();
@@ -251,65 +294,46 @@ namespace Schach.Classes
 
             try
             {
-                command.CommandText = "Insert into StaendePartien (PartieId, IstDran," +
-                    "A1, B1, C1, D1, E1, F1, G1, H1, " +
-                    "A2, B2, C2, D2, E2, F2, G2, H2, " +
-                    "A7, B7, C7, D7, E7, F7, G7, H7, " +
-                    "A8, B8, C8, D8, E8, F8, G8, H8" +
-                    ") VALUES ('"+ spielId + "', 'W', " +
-                    "'WT','WS','WL','WD','WK','WL','WS','WT', " +
-                    "'WB','WB','WB','WB','WB','WB','WB','WB', " +
-                    "'SB','SB','SB','SB','SB','SB','SB','SB', " +
-                    "'ST','SS','SL','SD','SK','SL','SS','ST'" +
-                    ")";
+                command.CommandText = "Delete from StaendePartienWerte where PartieId = '" + spielId + "';";
+                command.CommandText += "Insert into StaendePartienWerte (PartieId, IstDran, Werte) VALUES ('"+ spielId + "', '" + istDran + "', '" + werte + "')";
                 command.ExecuteNonQuery();
                 transaction.Commit();
             }
             catch (Exception e)
             {
-                try
-                {
-                    transaction.Rollback();
-                }
-                catch (SqlException ex)
-                {
-                    if (transaction.Connection != null)
-                    {
-                        //Fehlerbehandlung.Error(ex.StackTrace.ToString(), ex.Message, "xx0024ax");
-                    }
-                }
-                //Fehlerbehandlung.Error(e.StackTrace.ToString(), e.Message, "xx0024xx");
+                return "error";
             }
             Close();
+            return "ok";
         }
 
-        public static void UdpdateSpielstand(int spielId, string von, string nach, string istDran)
-        {
-            Connect();
+        //public static void UdpdateSpielstand(int spielId, string von, string nach, string istDran)
+        //{
+        //    Connect();
             
 
-            try
-            {
-                SqlCommand command = _con.CreateCommand();
-                SqlTransaction transaction;
-                // Start a local transaction.
-                transaction = _con.BeginTransaction(IsolationLevel.ReadCommitted);
-                // Must assign both transaction object and connection
-                // to Command object for a pending local transaction
-                command.Connection = _con;
-                command.Transaction = transaction;
-                command.CommandText = "Update StaendePartien Set " + nach +
-                    " = (Select " + von + " from StaendePartien where  PartieId = '" + spielId + "'), " + von + " = Null" +
-                    " where PartieId = '" + spielId + "'";
-                command.ExecuteNonQuery();
-                transaction.Commit();
-            }
-            catch (Exception e)
-            {
-                int i = 0;
-            }
-            Close();
-        }
+        //    try
+        //    {
+        //        SqlCommand command = _con.CreateCommand();
+        //        SqlTransaction transaction;
+        //        // Start a local transaction.
+        //        transaction = _con.BeginTransaction(IsolationLevel.ReadCommitted);
+        //        // Must assign both transaction object and connection
+        //        // to Command object for a pending local transaction
+        //        command.Connection = _con;
+        //        command.Transaction = transaction;
+        //        command.CommandText = "Update StaendePartien Set " + nach +
+        //            " = (Select " + von + " from StaendePartien where  PartieId = '" + spielId + "'), " + von + " = Null" +
+        //            " where PartieId = '" + spielId + "'";
+        //        command.ExecuteNonQuery();
+        //        transaction.Commit();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        int i = 0;
+        //    }
+        //    Close();
+        //}
 
         public static int InsertAllgChatNachricht(string nachricht, string nachrichtVon)
         {
@@ -366,7 +390,9 @@ namespace Schach.Classes
 
             try
             {
-                command.CommandText = "Insert into Chats (SpielId, NachrichtVon, Nachricht) VALUES ('" + spielId + "', '" + nachrichtVon + "', '" + nachricht + "')";
+                command.CommandText = "DELETE from Chats where SpielId in (Select SpielId from ChatsToDelete where datediff(minute, Zeitstempel, getdate())>= 5);";
+                command.CommandText += "DELETE from ChatsToDelete where datediff(minute, Zeitstempel, getdate())>= 5;";
+                command.CommandText += "Insert into Chats (SpielId, NachrichtVon, Nachricht) VALUES ('" + spielId + "', '" + nachrichtVon + "', '" + nachricht + "')";
                 command.ExecuteNonQuery();
                 transaction.Commit();
             }
@@ -575,7 +601,7 @@ namespace Schach.Classes
 
                     cmd.Connection = _con;
                     cmd.CommandType = CommandType.Text;
-                    cmd.CommandText = "SELECT * FROM Benutzer where guid != '" + guid + "'";
+                    cmd.CommandText = "SELECT * FROM Benutzer where guid != '" + guid + "' AND istAktiv = 'true'";
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -626,11 +652,48 @@ namespace Schach.Classes
             return null;
         }
 
+        public static void BenutzerAbmelden(string guid)
+        {  
+            Connect();
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = _con;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "Update Benutzer Set istAktiv = 'false' Where guid = '" + guid + "'";
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                int i = 0;
+            }
+            Close();
+            
+        }
+
         public static Benutzer BenutzerAnmelden(string email, string passwort) {
             foreach (Benutzer user in ReadBenutzerData())
             {
                 if (user.Mailadresse.Equals(email) && user.Passwort.Equals(passwort)) {
+                    Connect();
                     
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand())
+                        {
+                            cmd.Connection = _con;
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = "Update Benutzer Set istAktiv = 'true' Where guid = '" + user.Guid + "'";
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        int i = 0;
+                    }
+                    Close();
                     return user;
                 }
             }

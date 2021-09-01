@@ -70,15 +70,9 @@
     <image id="C1" class="schwarz" x="70" y="220" width="30" height="30" href="~/Content/Schach/WeisserLaeuferSchwarzesFeld.svg" />
     <image id="D1" class="weiss" x="100" y="220" width="30" height="30" href="~/Content/Schach/WeisserDameWeissesFeld.svg" />
     <image id="E1" class="schwarz" x="130" y="220" width="30" height="30" href="~/Content/Schach/WeisserKoenigSchwarzesFeld.svg" />
-    @*<image id="F1" class="weiss" x="160" y="220" width="30" height="30" href="~/Content/Schach/WeisserLaeuferWeissesFeld.svg" />
-    <image id="G1" class="schwarz" x="190" y="220" width="30" height="30" href="~/Content/Schach/WeisserSpringerSchwarzesFeld.svg" />*@
-
-    <image id="F1" class="weiss" x="160" y="220" width="30" height="30" href="~/Content/Schach/Weiss.svg" />
-    <image id="G1" class="schwarz" x="190" y="220" width="30" height="30" href="~/Content/Schach/Schwarz.svg" />
-    
+    <image id="F1" class="weiss" x="160" y="220" width="30" height="30" href="~/Content/Schach/WeisserLaeuferWeissesFeld.svg" />
+    <image id="G1" class="schwarz" x="190" y="220" width="30" height="30" href="~/Content/Schach/WeisserSpringerSchwarzesFeld.svg" />
     <image id="H1" class="weiss" x="220" y="220" width="30" height="30" href="~/Content/Schach/WeisserTurmWeissesFeld.svg" />
-
-
 
     <text x="22" y="9" style="font-size:10px">A</text>
     <text x="52" y="9" style="font-size:10px">B</text>
@@ -117,4 +111,33 @@
     <text x="252" y="30" style="font-size:10px">8</text>
 
 </svg>
-<script src="~/Scripts/Schach/Schachbrett.js"></script>
+        <script src="~/Scripts/Schach/Schachbrett.js"></script>
+        <script>
+            function ReadDataFromChessboard() {
+                let strWerte = "";
+                for (let zeile = 1; zeile <= 8; zeile++) {
+                    for (let spalte = 1; spalte <= 8; spalte++) {
+                        let strFeld = abcdefgh[zeile] + spalte;
+                        let strFigur = $("#" + strFeld).attr("href").split('/')[3].split('.')[0];
+                        strWerte += strFeld +"|"+strFigur+";"
+                    }
+                }
+                strWerte = strWerte.substr(0, strWerte.length - 1);
+
+                let value = JSON.stringify({
+                    istDran: SpielerAmZug,
+                    werte: strWerte
+                });
+
+                var http = new XMLHttpRequest();
+                http.open('POST', '/Home/SpielstandEintragen', true);
+                http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+                http.onreadystatechange = function () {
+                    if (http.readyState == 4 && http.status == 200 && http.responseText != "error") {
+                        alert("Spielstand wurde gespeichert!");
+                    }
+                }
+                http.send(value); 
+            }
+
+        </script>

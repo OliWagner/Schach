@@ -12,12 +12,26 @@
 </script>
 <script src="~/Scripts/Schach/Spiel.js"></script>
 @Model.NameSpielerSchwarz - @Model.NameSpielerWeiss
+<table border="0" width="100%">
+    <tr>
+        <td id="tdSpielObenLinks">
+            Sie spielen mit @(Model.EigeneFarbeDesSpielers.Equals("W") ? "Weiss" : "Schwarz")
+            <br />
+            <label id="lblAnzeigeSpielerAmZug">
+                @(Model.SpielerAmZug.Equals("W") ? "Weiss" : "Schwarz") ist am Zug
+            </label>
+        </td>
+        <td id="tdSpielObenRechts" align="right">
+            <button class="btnAngemeldet" id="btnSpielLoeschen">löschen</button><br />
+            <button class="btnAngemeldet" id="btnSpielSpeichern">speichern</button><br />
+            <button class="btnAngemeldet" id="btnSpielVerlassen">verlassen</button>
+        </td>
+    </tr>
+</table>
+
+
 <br />
-Sie spielen mit @(Model.EigeneFarbeDesSpielers.Equals("W") ? "Weiss" : "Schwarz")
-<br />
-<label id="lblAnzeigeSpielerAmZug">
-    @(Model.SpielerAmZug.Equals("W") ? "Weiss" : "Schwarz") ist am Zug
-</label>
+
 <div id="divAnzeigeZuege">
 
 </div>
@@ -40,6 +54,78 @@ Sie spielen mit @(Model.EigeneFarbeDesSpielers.Equals("W") ? "Weiss" : "Schwarz"
     </table>
 </div>
 <script>
+    $("#btnSpielLoeschen").click(function () {
+        //Nachricht in den Chat schreiben
+        let values = JSON.stringify({
+            spielId: IdDesLaufendenSpiels,
+            nachrichtVon: 'SYSTEM',
+            nachricht: 'Das Spiel wurde gelöscht!!!'
+        });
+
+        var http_ = new XMLHttpRequest();
+        http_.open('POST', '/Chat/NachrichtEintragen', true);
+        http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http_.onreadystatechange = function () {
+            if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
+                $("#txtChatNachricht").val("");
+            }
+        }
+        http_.send(values); 
+        //Spiel löschen
+
+        let values2 = JSON.stringify({
+            id: IdDesLaufendenSpiels
+        });
+
+        var http_2 = new XMLHttpRequest();
+        http_2.open('POST', '/Home/SpielAblehnen', true);
+        http_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http_2.send(values2); 
+
+        window.location.href = "/Home/Angemeldet";
+    });
+
+    $("#btnSpielVerlassen").click(function () {
+        //Nachricht in den Chat schreiben
+        let values = JSON.stringify({
+            spielId: IdDesLaufendenSpiels,
+            nachrichtVon: 'SYSTEM',
+            nachricht: 'Der Partner hat das Spiel verlassen!!!'
+        });
+
+        var http_ = new XMLHttpRequest();
+        http_.open('POST', '/Chat/NachrichtEintragen', true);
+        http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http_.onreadystatechange = function () {
+            if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
+                $("#txtChatNachricht").val("");
+            }
+        }
+        http_.send(values); 
+        window.location.href = "/Home/Angemeldet";
+    });
+
+    $("#btnSpielSpeichern").click(function () {
+        ReadDataFromChessboard();
+        //TODO Noch eine Nachricht im Chat absetzen
+        let values = JSON.stringify({
+            spielId: IdDesLaufendenSpiels,
+            nachrichtVon: 'SYSTEM',
+            nachricht: 'Der Partner hat das Spiel gespeichert und dann verlassen!!!'
+        });
+
+        var http_ = new XMLHttpRequest();
+        http_.open('POST', '/Chat/NachrichtEintragen', true);
+        http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http_.onreadystatechange = function () {
+            if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
+                $("#txtChatNachricht").val("");
+            }
+        }
+        http_.send(values);
+        window.location.href = "/Home/Angemeldet";
+    });
+
     $("#btnChatNachrichtSenden").click(function () {
         let values = JSON.stringify({
             spielId: IdDesLaufendenSpiels,
@@ -73,6 +159,10 @@ Sie spielen mit @(Model.EigeneFarbeDesSpielers.Equals("W") ? "Weiss" : "Schwarz"
                 var arr = JSON.parse(http.responseText);
                 arr.forEach(function (item) {
                     $("#divChatNachrichten").append("<p class='chatxxx'><u>" + item.NachrichtVon + ":</u> " + item.Nachricht + "</p>");
+                    if (item.NachrichtVon == "SYSTEM") {
+                        $("#btnSpielLoeschen").hide();
+                        $("#btnSpielSpeichern").hide();
+                    }
                 });
             }
         }

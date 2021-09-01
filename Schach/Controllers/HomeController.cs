@@ -15,15 +15,15 @@ namespace Schach.Controllers
         // GET: Schach
         public ActionResult Index()
         {
-            Session["Spieler"] = "a";
-            Session["SpielerGuid"] = "a";
+            Session["Spieler"] = "";
+            Session["SpielerGuid"] = "";
             Session["SpielId"] = "";
             return View();
         }
 
         public ActionResult Angemeldet()
         {
-            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals("a")) {
+            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals("")) {
                 return RedirectToAction("Index");
             } else {
                 return View();
@@ -34,7 +34,7 @@ namespace Schach.Controllers
         public ActionResult Spielen(int id)
         {
 
-            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals("a"))
+            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals(""))
             {
                 return RedirectToAction("Index");
             }
@@ -59,6 +59,21 @@ namespace Schach.Controllers
             }
         }
 
+        public ActionResult SpielAblehnen(int id)
+        {
+
+            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals(""))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                DbConnector.DeletePartie(id);
+                DbConnector.InsertChatToDelete(id);
+                return RedirectToAction("Angemeldet", "Home");
+            }
+        }
+
         public ActionResult SpielerAbrufen(string guid)
         {
             List<Benutzer> liste = DbConnector.ReadBenutzerData(guid);
@@ -76,6 +91,13 @@ namespace Schach.Controllers
                 return Content(JsonConvert.SerializeObject(ben), "text/json");
             }
             return null;
+        }
+
+        public ActionResult Abmelden(string guid)
+        {
+            DbConnector.BenutzerAbmelden(guid);
+            AktiverSpieler = null;
+            return Content("ok", "text/plain");
         }
 
         public ActionResult GetAktiverSpieler()
@@ -117,6 +139,14 @@ namespace Schach.Controllers
             return Content(zug, "text/plain");
         }
 
+        public ActionResult SpielstandEintragen(string istDran, string werte)
+        {
+            string spielId = Session["SpielId"].ToString();
+            int _spielId = Int32.Parse(spielId);
+            string result = DbConnector.InsertSpielstand(_spielId, istDran, werte);
+            return Content(result, "text/plain");
+        }
+
         public ActionResult CheckAnnahmePartie(int id)
         {
             if (DbConnector.SchaueNachPartieBestaetigung(id))
@@ -136,7 +166,6 @@ namespace Schach.Controllers
                 SpielerNachschauenResponseModel model = new SpielerNachschauenResponseModel();
                 model.PartieId = test;
                 model.Prosatext = "Es liegt eine Anfrage für ein Spiel vor.";
-                //model.Herausforderer = DbConnector.ReadSingleBenutzerData(AktiverSpieler.Guid).Mailadresse;
                 return Content(JsonConvert.SerializeObject(model), "text/json");
             }
             return Content("Nix", "text/plain");

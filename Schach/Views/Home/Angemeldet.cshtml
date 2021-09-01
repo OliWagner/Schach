@@ -40,18 +40,24 @@
             guid: guid
         });
 
-        var http = new XMLHttpRequest();
-        http.open('POST', '/Home/SpielerAbrufen', true);
-        http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-        http.onreadystatechange = function () {
-            if (http.readyState == 4 && http.status == 200) {
-                var arr = JSON.parse(http.responseText);
-                arr.forEach(function (item) {
-                    $("#tabSpieler").append("<tr><td onclick=tdClick('" + item.Guid +  "')>" + item.Mailadresse + "</td></tr>");
-                });
+        //HIER DAS INTERVAL
+        setInterval(function () {
+            var http = new XMLHttpRequest();
+            http.open('POST', '/Home/SpielerAbrufen', true);
+            http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            http.onreadystatechange = function () {
+                if (http.readyState == 4 && http.status == 200) {
+                    var arr = JSON.parse(http.responseText);
+                    $("#tabSpieler").empty();
+                    arr.forEach(function (item) {
+                        $("#tabSpieler").append("<tr><td onclick=tdClick('" + item.Guid + "')>" + item.Mailadresse + "</td></tr>");
+                    });
+                }
             }
-        }
-        http.send(value);
+            http.send(value);
+        }, 5000);
+        
+
     });
 
     var myInterval = setInterval(function () {
@@ -69,6 +75,7 @@
                 var values = JSON.parse(http.responseText);
                 $("#lblAnfrage").text(values.Prosatext);
                 $("#lblAnfrage").append("<br/><a href='/Home/Spielen?id=" + values.PartieId + "'>Zum Spiel</a>");
+                $("#lblAnfrage").append("<br/><a href='/Home/SpielAblehnen?id=" + values.PartieId + "'>Ablehnen</a>");
             }
         }
     }
@@ -170,5 +177,23 @@
         }
         http2.send(value2);
     }, 3000);
+
+    $("#btnAbmelden").click(function () {
+        var value = JSON.stringify({
+        guid: '@Session["SpielerGuid"].ToString()'
+        });
+
+        var http2 = new XMLHttpRequest();
+        http2.open('POST', '/Home/Abmelden', true);
+        http2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        http2.onreadystatechange = function () {
+            if (http2.readyState == 4 && http2.status == 200) {
+                if (http2.responseText == "ok") {
+                    window.location.href = "/Home/Index";
+                }
+            }
+        }
+        http2.send(value);
+    });
 
 </script>
