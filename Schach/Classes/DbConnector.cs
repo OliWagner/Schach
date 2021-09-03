@@ -12,35 +12,6 @@ namespace Schach.Classes
     {
         public static SqlConnection _con;
         public static string _conString = "Data Source='DESKTOP-8NB5DQG\\DATENBANK';Initial Catalog='Schach';User ID='sa';Password='95hjh11!';";
-        //public static string _conString = "Data Source='EC2AMAZ-I6L5O2V\\SQLEXPRESS';Initial Catalog='Schach';User ID='sa';Password='95hjh11!';";
-
-        //private static DbConnector instance = null;
-        //private static readonly object padlock = new object();
-
-        //private DbConnector()
-        //{
-            
-        //}
-
-        //public static DbConnector Instance
-        //{
-        //    get
-        //    {
-        //        if (instance == null)
-        //        {
-        //            lock (padlock)
-        //            {
-        //                if (instance == null)
-        //                {
-        //                    instance = new DbConnector();
-        //                    Connect();
-        //                }
-        //            }
-        //        }
-        //        return instance;
-        //    }
-        //}
-    
 
     #region Common
     private static bool Connect()
