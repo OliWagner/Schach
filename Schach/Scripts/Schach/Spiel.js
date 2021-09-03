@@ -1,11 +1,13 @@
 ﻿var letzterZug = "";
 
-if (letzterZug == "" && EigeneFarbeDesSpielers == "S") {
+if (letzterZug == "" && EigeneFarbeDesSpielers == "S" && EigeneFarbeDesSpielers != SpielerAmZug) {
     var myIntervalStart = setInterval(function () {
             rufeLetztenWurfVomServerAb(); 
     }, 3000);
 }
 var myInterval0;
+
+
 function sendeWurfAnServer(_spielerHatGezogen, _zugVon, _zugNach, _figur) {
     letzterZug = _zugVon.substr(1) + "-" + _zugNach.substr(1);
 
@@ -21,13 +23,17 @@ function sendeWurfAnServer(_spielerHatGezogen, _zugVon, _zugNach, _figur) {
     http.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
     http.onreadystatechange = function () {
         if (http.readyState == 4 && http.status == 200 && http.responseText != "") {
-            alert("Zug ist eingetragen");
+            //alert("Zug ist eingetragen");
             myInterval0 = setInterval(function () {
                 rufeLetztenWurfVomServerAb();      
             }, 3000);
         }
     }
     http.send(value); 
+    setTimeout(function () {
+        ReadDataFromChessboard();
+    }, 1000);
+    
 }
 
 function rufeLetztenWurfVomServerAb() {

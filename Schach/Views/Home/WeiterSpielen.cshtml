@@ -1,0 +1,33 @@
+﻿@using Schach.Models
+@model Schach.Models.SpielenWerteModel
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schach - Onlinekram</title>
+</head>
+<body>
+    <div id="divSchachbrett" style="float:left; width:300px;">
+        @Html.Partial("_Schachbrett")
+    </div>
+
+    <div id="divAnzeige" class="divAnzeige" style="float:left;">
+           @Html.Partial("_Spiel")
+    </div>
+</body>
+</html>
+<script>
+    //Hier das Schachbrett besetzen
+    let werteFuersBoardString = '@Model.FigurenWerte';
+    let arrWerte = werteFuersBoardString.split(';');
+    arrWerte.forEach(function (item) {
+        let arr1Wert = item.split('|');
+        let zielfeld = "#" + arr1Wert[0];
+        let figur = arr1Wert[1];
+        $(zielfeld).attr('href', '/Content/Schach/' + figur + '.svg');
+    });
+    letzterZug = '@Model.LetzterZug';
+
+
+</script>

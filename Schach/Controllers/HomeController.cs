@@ -73,6 +73,35 @@ namespace Schach.Controllers
                 return RedirectToAction("Angemeldet", "Home");
             }
         }
+       
+        public ActionResult WeiterSpielen(int id)
+        {
+
+            if (Session["SpielerGuid"] == null || Session["SpielerGuid"].ToString().Equals(""))
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                Session["SpielId"] = id;
+                DbConnector.DeleteChatNachrichten(id);
+
+                SpielenWerteModel model = new SpielenWerteModel();
+                model.EigeneFarbeDesSpielers = DbConnector.ErmittleFarbeSpieler(Session["SpielerGuid"].ToString(), id);
+                OffenesSpiel os = DbConnector.ReadOffenesSpiel(id);
+
+                //Folgenden Wert aus der DB lesen
+                model.FigurenWerte = os.Werte;
+                Zug _Zug = DbConnector.LeseZuege(id).Last();
+                model.SpielerAmZug = _Zug.SpielerHatGezogen.Equals("W") ? "S" : "W";
+                model.LetzterZug = _Zug.Zuhg;
+                string[] beide = DbConnector.GetNamenMitspieler(id).Split(';');
+                model.NameSpielerSchwarz = beide[1];
+                model.NameSpielerWeiss = beide[0];
+                model.SpielId = id;
+                return View(model);
+            }
+        }
 
         public ActionResult SpielerAbrufen(string guid)
         {
@@ -100,6 +129,15 @@ namespace Schach.Controllers
             return Content("ok", "text/plain");
         }
 
+        public ActionResult ReadOffeneSpiele(string guid)
+        {
+            List<OffenesSpielDarstellung> listes = DbConnector.ReadOffeneSpiele(guid);
+
+            string json = JsonConvert.SerializeObject(listes);
+
+            return Content(json, "text/json");
+        }
+
         public ActionResult GetAktiverSpieler()
         {
             return Content(JsonConvert.SerializeObject(AktiverSpieler), "text/json");
@@ -107,10 +145,10 @@ namespace Schach.Controllers
 
         public ActionResult Registrieren(SchachAnmeldungModel model)
         {
-            //DbConnector.InsertBenutzerData(model.email, model.passwort, Guid.NewGuid().ToString(), true);
+            DbConnector.InsertBenutzerData(model.email, model.passwort, Guid.NewGuid().ToString(), false);
 
-            //return Content("Sie haben sich registriert und können nun loslegen.", "text/plain");
-            return Content("Registrierung derzeit nicht möglich.", "text/plain");
+            return Content("Sie haben sich registriert und können nun loslegen.", "text/plain");
+            //return Content("Registrierung derzeit nicht möglich.", "text/plain");
         }
 
         public ActionResult PartieAnlegen(string spielerweiss, string spielerschwarz)
@@ -143,7 +181,7 @@ namespace Schach.Controllers
         {
             string spielId = Session["SpielId"].ToString();
             int _spielId = Int32.Parse(spielId);
-            string result = DbConnector.InsertSpielstand(_spielId, istDran, werte);
+            string result = DbConnector.UpdateSpielstand(_spielId, istDran, werte);
             return Content(result, "text/plain");
         }
 

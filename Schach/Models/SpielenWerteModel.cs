@@ -15,5 +15,7 @@ namespace Schach.Models
         public string EigeneFarbeDesSpielers { get; set; }
         public string NameSpielerWeiss { get; set; }
         public string NameSpielerSchwarz { get; set; }
+        public string FigurenWerte { get; set; }
+        public string LetzterZug { get; set; }
     }
 }

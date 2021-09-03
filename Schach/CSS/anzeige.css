@@ -1,4 +1,16 @@
-﻿.divAnzeigeLinks {
+﻿#divAnzeigeOffeneSpiele {
+    font-size: 7px;
+    border: solid 1px #ffffff;
+    border-radius: 5px;
+    min-width: 150px;
+    min-height: 50px;
+    max-height: 50px;
+    padding: 5px;
+    margin-top: -15px;
+    overflow-y: scroll;
+}
+
+.divAnzeigeLinks {
     font-size: 15px;
     border: solid 2px #ffffff;
     border-radius: 5px;

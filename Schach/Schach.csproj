@@ -124,6 +124,7 @@
     <Compile Include="Classes\ChatAllgNachricht.cs" />
     <Compile Include="Classes\ChatNachricht.cs" />
     <Compile Include="Classes\DbConnector.cs" />
+    <Compile Include="Classes\OffenesSpiel.cs" />
     <Compile Include="Classes\Zug.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -207,6 +208,7 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Spielen.cshtml" />
     <Content Include="Views\Home\_Spiel.cshtml" />
+    <Content Include="Views\Home\WeiterSpielen.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

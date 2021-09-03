@@ -23,7 +23,6 @@
         </td>
         <td id="tdSpielObenRechts" align="right">
             <button class="btnAngemeldet" id="btnSpielLoeschen">löschen</button><br />
-            <button class="btnAngemeldet" id="btnSpielSpeichern">speichern</button><br />
             <button class="btnAngemeldet" id="btnSpielVerlassen">verlassen</button>
         </td>
     </tr>
@@ -82,7 +81,9 @@
         http_2.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
         http_2.send(values2); 
 
-        window.location.href = "/Home/Angemeldet";
+        setTimeout(function () {
+            window.location.href = "/Home/Angemeldet";
+        }, 3000);
     });
 
     $("#btnSpielVerlassen").click(function () {
@@ -90,7 +91,7 @@
         let values = JSON.stringify({
             spielId: IdDesLaufendenSpiels,
             nachrichtVon: 'SYSTEM',
-            nachricht: 'Der Partner hat das Spiel verlassen!!!'
+            nachricht: 'Spieler hat das Spiel verlassen!!!'
         });
 
         var http_ = new XMLHttpRequest();
@@ -102,29 +103,31 @@
             }
         }
         http_.send(values); 
-        window.location.href = "/Home/Angemeldet";
+        setTimeout(function () {
+            window.location.href = "/Home/Angemeldet";
+        }, 3000);
     });
 
-    $("#btnSpielSpeichern").click(function () {
-        ReadDataFromChessboard();
-        //TODO Noch eine Nachricht im Chat absetzen
-        let values = JSON.stringify({
-            spielId: IdDesLaufendenSpiels,
-            nachrichtVon: 'SYSTEM',
-            nachricht: 'Der Partner hat das Spiel gespeichert und dann verlassen!!!'
-        });
+    //$("#btnSpielSpeichern").click(function () {
+    //    ReadDataFromChessboard();
+    //    //TODO Noch eine Nachricht im Chat absetzen
+    //    let values = JSON.stringify({
+    //        spielId: IdDesLaufendenSpiels,
+    //        nachrichtVon: 'SYSTEM',
+    //        nachricht: 'Der Partner hat das Spiel gespeichert und dann verlassen!!!'
+    //    });
 
-        var http_ = new XMLHttpRequest();
-        http_.open('POST', '/Chat/NachrichtEintragen', true);
-        http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-        http_.onreadystatechange = function () {
-            if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
-                $("#txtChatNachricht").val("");
-            }
-        }
-        http_.send(values);
-        window.location.href = "/Home/Angemeldet";
-    });
+    //    var http_ = new XMLHttpRequest();
+    //    http_.open('POST', '/Chat/NachrichtEintragen', true);
+    //    http_.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    //    http_.onreadystatechange = function () {
+    //        if (http_.readyState == 4 && http_.status == 200 && http_.responseText == "ok") {
+    //            $("#txtChatNachricht").val("");
+    //        }
+    //    }
+    //    http_.send(values);
+    //    window.location.href = "/Home/Angemeldet";
+    //});
 
     $("#btnChatNachrichtSenden").click(function () {
         let values = JSON.stringify({
@@ -159,10 +162,10 @@
                 var arr = JSON.parse(http.responseText);
                 arr.forEach(function (item) {
                     $("#divChatNachrichten").append("<p class='chatxxx'><u>" + item.NachrichtVon + ":</u> " + item.Nachricht + "</p>");
-                    if (item.NachrichtVon == "SYSTEM") {
-                        $("#btnSpielLoeschen").hide();
-                        $("#btnSpielSpeichern").hide();
-                    }
+                    //if (item.NachrichtVon == "SYSTEM") {
+                    //    $("#btnSpielLoeschen").hide();
+                    //    $("#btnSpielSpeichern").hide();
+                    //}
                 });
             }
         }
